@@ -116,6 +116,10 @@
                 <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                 <span>Run SRM Inference</span>
             </button>
+            <a href="mission_control.html" class="px-3 py-1.5 rounded-lg bg-purple-600/80 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center space-x-1.5">
+                <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+                <span>Mission Control</span>
+            </a>
             <button onclick="exportAuditLedger()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition flex items-center space-x-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Export Dossier</span>
@@ -220,6 +224,27 @@
                 <div class="text-xl font-extrabold text-white" id="stat-unc">0.052</div>
                 <div class="text-[11px] text-emerald-400 font-mono">Low Hallucination Risk</div>
             </div>
+        </section>
+
+        <!-- NTRO Compliance & Extended Platform (SIH26142) -->
+        <section class="glass-panel rounded-xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-400"></i>
+                    NTRO Problem Statement Coverage + Extended Platform APIs
+                </h3>
+                <a href="http://127.0.0.1:8000/docs" target="_blank" class="text-xs font-mono text-sky-400 hover:text-sky-300">OpenAPI /docs →</a>
+            </div>
+            <div id="compliance-chips" class="flex flex-wrap gap-2 text-[11px] font-mono text-slate-300">
+                <span class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">Pre-processing</span>
+                <span class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">Training + Validation</span>
+                <span class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">Uncertainty Maps</span>
+                <span class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">Copernicus STAC</span>
+                <span class="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">Crop / Urban / Disaster</span>
+                <span class="px-2 py-1 rounded bg-sky-500/10 border border-sky-500/30 text-sky-300">GeoTIFF Export</span>
+                <span class="px-2 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-300">Change Detection</span>
+            </div>
+            <p id="platform-features-text" class="text-xs text-slate-400 leading-relaxed">Loading platform manifest from <code class="text-sky-300">/api/v1/platform/features</code>…</p>
         </section>
 
         <!-- Scene Selector & Spectral Mode Ribbon -->
@@ -743,6 +768,7 @@
                     ssim = data.ssim.toFixed(3);
                     sam = data.sam_degrees.toFixed(2);
                     unc = data.uncertainty_index.toFixed(3);
+                    ndvi = (data.ndvi_conservation_score * 100).toFixed(1);
                     hash = data.sha256_audit_hash;
                     execId = data.execution_id;
                 }
@@ -798,7 +824,22 @@
                 }
             }
         }
+        async function loadPlatformManifest() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/api/v1/platform/features');
+                if (!res.ok) return;
+                const data = await res.json();
+                const feats = (data.unique_capabilities || []).slice(0, 8).join(' • ');
+                document.getElementById('platform-features-text').textContent =
+                    `${data.supported_models?.length || 0} model architectures • ${feats}`;
+            } catch (e) {
+                document.getElementById('platform-features-text').textContent =
+                    'Start FastAPI (python app.py) to load live compliance & platform APIs.';
+            }
+        }
+
         checkBackendStatus();
+        loadPlatformManifest();
         setInterval(checkBackendStatus, 8000);
 
         function exportAuditLedger() {

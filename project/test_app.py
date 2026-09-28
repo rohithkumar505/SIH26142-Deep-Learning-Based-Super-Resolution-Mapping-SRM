@@ -72,3 +72,41 @@ def test_audit_logs():
     assert data["lead_architect"] == "Rohith Kumar"
     assert "records" in data
     assert isinstance(data["records"], list)
+
+
+def test_compliance_matrix_endpoint():
+    response = client.get("/api/v1/compliance/matrix")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["problem_id"] == "SIH26142"
+    assert len(data["items"]) >= 10
+
+
+def test_preprocess_and_validate():
+    r1 = client.post("/api/v1/srm/preprocess", json={"scene_id": "SCENE_HIMALAYA_01"})
+    assert r1.status_code == 200
+    r2 = client.post(
+        "/api/v1/srm/validate",
+        json={"scene_id": "SCENE_HIMALAYA_01", "scale_factor": 4, "model_architecture": "Real-ESRGAN-RS"},
+    )
+    assert r2.status_code == 200
+    assert "metrics" in r2.json()
+
+
+def test_v2_enterprise_features():
+    response = client.get("/api/v2/features/full")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_features"] >= 50
+
+
+def test_v2_deep_health():
+    response = client.get("/api/v2/health/deep")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+
+def test_v2_domain_water():
+    response = client.get("/api/v2/applications/water/SCENE_HIMALAYA_01")
+    assert response.status_code == 200
+    assert response.json()["application"] == "water_resources"

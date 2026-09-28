@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sih26142-srm-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sih26142-srm
+  template:
+    metadata:
+      labels:
+        app: sih26142-srm
+    spec:
+      containers:
+        - name: api
+          image: sih26142-srm:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PROBLEM_ID
+              value: SIH26142
+          readinessProbe:
+            httpGet:
+              path: /api/v2/health/deep
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sih26142-srm
+spec:
+  selector:
+    app: sih26142-srm
+  ports:
+    - port: 80
+      targetPort: 8000

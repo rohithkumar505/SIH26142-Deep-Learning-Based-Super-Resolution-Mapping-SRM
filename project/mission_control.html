@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIH26142 Mission Control | Full Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6 font-sans">
+  <header class="flex flex-wrap justify-between items-center gap-4 mb-8 border-b border-slate-800 pb-4">
+    <div>
+      <h1 class="text-2xl font-black">SIH26142 Mission Control</h1>
+      <p class="text-sm text-slate-400">NTRO SRM Enterprise Console — Rohith Kumar</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="index.html" class="px-3 py-2 rounded-lg bg-slate-800 text-sm">← Studio</a>
+      <a href="http://127.0.0.1:8000/docs" class="px-3 py-2 rounded-lg bg-indigo-600 text-sm">API Docs</a>
+    </div>
+  </header>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <section class="lg:col-span-2 bg-slate-900/80 border border-slate-800 rounded-xl p-5">
+      <h2 class="font-bold mb-3 flex items-center gap-2"><i data-lucide="grid-3x3"></i> Feature Catalog</h2>
+      <p id="feature-count" class="text-indigo-300 font-mono text-sm mb-4">Loading…</p>
+      <div id="feature-grid" class="grid sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto text-xs"></div>
+    </section>
+
+    <section class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 space-y-3">
+      <h2 class="font-bold">Quick Actions</h2>
+      <button onclick="runBriefing()" class="w-full py-2 rounded bg-sky-600 text-sm">AI Mission Briefing</button>
+      <button onclick="runLeaderboard()" class="w-full py-2 rounded bg-emerald-600 text-sm">Model Leaderboard</button>
+      <button onclick="verifyAudit()" class="w-full py-2 rounded bg-purple-600 text-sm">Verify Audit Chain</button>
+      <button onclick="deepHealth()" class="w-full py-2 rounded bg-amber-600 text-sm">Deep Health Check</button>
+      <button onclick="downloadAll()" class="w-full py-2 rounded bg-rose-600 text-sm">Download Real Sentinel-2</button>
+      <button onclick="trainReal()" class="w-full py-2 rounded bg-indigo-600 text-sm">Train PyTorch Weights</button>
+      <pre id="action-out" class="text-[11px] bg-slate-950 p-3 rounded border border-slate-800 overflow-auto max-h-48"></pre>
+    </section>
+
+    <section class="lg:col-span-3 bg-slate-900/80 border border-slate-800 rounded-xl p-5">
+      <h2 class="font-bold mb-3">Domain Application Matrix</h2>
+      <div id="domain-grid" class="grid sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs"></div>
+    </section>
+  </div>
+
+  <script>
+    const API = 'http://127.0.0.1:8000';
+    const scene = 'SCENE_HIMALAYA_01';
+    const domains = [
+      ['crop', `/api/v1/applications/crop/${scene}`],
+      ['urban', `/api/v1/applications/urban/${scene}`],
+      ['disaster', `/api/v1/applications/disaster/${scene}`],
+      ['water', `/api/v2/applications/water/${scene}`],
+      ['forestry', `/api/v2/applications/forestry/${scene}`],
+      ['defense', `/api/v2/applications/defense/${scene}`],
+    ];
+
+    async function loadFeatures() {
+      const res = await fetch(`${API}/api/v2/features/full`);
+      const data = await res.json();
+      document.getElementById('feature-count').textContent =
+        `${data.total_features} features across ${data.categories} categories`;
+      const grid = document.getElementById('feature-grid');
+      grid.innerHTML = data.features.map(f =>
+        `<div class="p-2 rounded border border-slate-800"><span class="text-slate-500">${f.category}</span><br>${f.name}</div>`
+      ).join('');
+    }
+
+    async function loadDomains() {
+      const grid = document.getElementById('domain-grid');
+      for (const [name, path] of domains) {
+        try {
+          const r = await fetch(`${API}${path}`);
+          const j = await r.json();
+          grid.innerHTML += `<div class="p-3 rounded border border-slate-700"><b class="text-sky-400">${name}</b><pre class="mt-1 text-[10px] overflow-hidden">${JSON.stringify(j).slice(0,120)}…</pre></div>`;
+        } catch (e) {
+          grid.innerHTML += `<div class="p-3 rounded border border-red-900 text-red-400">${name}: offline</div>`;
+        }
+      }
+    }
+
+    function out(obj) { document.getElementById('action-out').textContent = JSON.stringify(obj, null, 2); }
+    async function runBriefing() { out(await (await fetch(`${API}/api/v2/briefing/${scene}`)).json()); }
+    async function runLeaderboard() { out(await (await fetch(`${API}/api/v1/benchmark/leaderboard`)).json()); }
+    async function verifyAudit() { out(await (await fetch(`${API}/api/v2/audit/verify-chain`)).json()); }
+    async function deepHealth() { out(await (await fetch(`${API}/api/v2/health/deep`)).json()); }
+    async function downloadAll() { out(await (await fetch(`${API}/api/v1/copernicus/download-all`, {method:'POST'})).json()); }
+    async function trainReal() {
+      out(await (await fetch(`${API}/api/v1/training/start`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({epochs:8, scale_factor:4, model_architecture:'EDSR-Multispectral', async_job:false})
+      })).json());
+    }
+
+    loadFeatures();
+    loadDomains();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

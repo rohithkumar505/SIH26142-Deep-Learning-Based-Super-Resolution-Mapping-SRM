@@ -27,6 +27,9 @@
 3. **Comprehensive Technical Whitepaper (`project/solution.md`):** Complete architectural breakdown, mathematical formulations, Spectral Angle Mapper (SAM) loss, PostGIS schemas, and deployment topologies.
 4. **Automated Test Suite (`project/test_app.py`):** Built-in unit and integration tests verifying all REST endpoints.
 5. **Turnkey Containerization (`project/Dockerfile` & `project/docker-compose.yml`):** Ready for one-command deployment on Docker / Kubernetes.
+6. **Enterprise Mission Control (`project/mission_control.html`):** Full feature catalog console with 60+ capabilities.
+7. **Dual API tiers:** `/api/v1` (core SRM) + `/api/v2` (enterprise: XAI, fusion, federated, webhooks, workspaces).
+8. **MLOps:** `Makefile`, `srm_cli.py`, `k8s/`, GitHub Actions CI, PostGIS + Redis compose stack.
 
 ---
 
@@ -49,7 +52,16 @@ python app.py
 - API Server: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 - Interactive OpenAPI Docs: **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
 
-### Option 3: Run Automated Tests
+### Option 3: REAL satellite download + PyTorch train (full stack)
+
+See **`project/REAL_WORKING_GUIDE.md`** — downloads **real Sentinel-2** from STAC, trains **ESPCN `.pt` weights**, runs inference on cached imagery.
+
+```bash
+cd project
+./scripts/setup_real_stack.sh   # Python 3.11/3.12 recommended
+```
+
+### Option 4: Run Automated Tests
 ```bash
 cd project
 pytest test_app.py -v

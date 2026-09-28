@@ -1,0 +1,43 @@
+SAMPLE_SCENES = {
+    "himalayan_slope": {
+        "id": "SCENE_HIMALAYA_01",
+        "title": "Himalayan Landslide & Slope Stability Zone (Kedarnath Valley)",
+        "coordinates": {"lat": 30.7346, "lon": 79.0669},
+        "sentinel2_bands": ["B02 (Blue)", "B03 (Green)", "B04 (Red)", "B08 (NIR)"],
+        "cloud_cover_percent": 1.2,
+        "capture_date": "2026-05-18",
+        "copernicus_tile_id": "T44RKR",
+        "input_resolution": "10.0m GSD",
+        "target_resolution": "2.5m GSD (4x Super-Resolution)",
+        "description": "Slope creep and critical debris flow zone analyzed for slope instability.",
+        "use_case": "disaster",
+    },
+    "punjab_agriculture": {
+        "id": "SCENE_PUNJAB_02",
+        "title": "Indo-Gangetic Precision Agricultural Parcels (Ludhiana)",
+        "coordinates": {"lat": 30.9010, "lon": 75.8573},
+        "sentinel2_bands": ["B02 (Blue)", "B03 (Green)", "B04 (Red)", "B08 (NIR)"],
+        "cloud_cover_percent": 0.4,
+        "capture_date": "2026-04-12",
+        "copernicus_tile_id": "T43RER",
+        "input_resolution": "10.0m GSD",
+        "target_resolution": "2.5m GSD (4x Super-Resolution)",
+        "description": "Smallholder crop boundary demarcation and sub-pixel NDVI health monitoring.",
+        "use_case": "crop",
+    },
+    "delhi_urban": {
+        "id": "SCENE_DELHI_03",
+        "title": "National Capital Region Dense Urban Infrastructure (Central Delhi)",
+        "coordinates": {"lat": 28.6139, "lon": 77.2090},
+        "sentinel2_bands": ["B02 (Blue)", "B03 (Green)", "B04 (Red)", "B08 (NIR)"],
+        "cloud_cover_percent": 2.1,
+        "capture_date": "2026-03-24",
+        "copernicus_tile_id": "T43RNL",
+        "input_resolution": "10.0m GSD",
+        "target_resolution": "2.5m GSD (4x Super-Resolution)",
+        "description": "Narrow transit corridors, building footprint extraction, and road network mapping.",
+        "use_case": "urban",
+    },
+}
+
+SCENE_BY_ID = {s["id"]: s for s in SAMPLE_SCENES.values()}
